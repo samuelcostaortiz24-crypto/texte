@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Controle de Almoxarifado - Teste v2</title>
+    <title>Controle de Almoxarifado - Teste v4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <style>
@@ -43,8 +43,8 @@
         </div>
     </div>
     <script>
-        // ############ SUA NOVA URL VERSÃO 2 FOI INSERIDA AQUI! ############
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2veezWEwY69u0htXiu005__NAgrt1XceIKnoBOqIPNNjk4pFxQhDo5jm-JsER28M/exec";
+        // ############ SUA URL DIPLOMÁTICA v4.0 ESTÁ AQUI! ############
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxOboIbz1mgXuSsb1RJq8C4KMUr94aL3DiN5Ugbkm5nsASk_0QCDJQjpyzvYaqCoM/exec";
         
         // --- O CÓDIGO ABAIXO ESTÁ OTIMIZADO PARA DEPURAR ---
         const productListDiv = document.getElementById('product-list');
@@ -60,22 +60,23 @@
         }
 
         window.onload = function() {
-            if (SCRIPT_URL === "COLE_A_SUA_NOVA_URL_AQUI") {
-                showMessage('error', 'ERRO DE CONFIGURAÇÃO: A SCRIPT_URL ainda não foi adicionada ao arquivo index.html. Edite o arquivo no GitHub e cole a URL do seu script.');
+            if (!SCRIPT_URL.startsWith("https://script.google.com")) {
+                showMessage('error', 'ERRO DE CONFIGURAÇÃO: A SCRIPT_URL parece inválida. Edite o arquivo index.html e cole a URL correta do seu script.');
                 loadingMessage.style.display = 'none';
                 return;
             }
             loadingMessage.style.display = 'block';
             fetch(`${SCRIPT_URL}?action=getProducts`)
-            .then(response => response.json())
+            .then(response => {
+                 if (!response.ok) { throw new Error(`Network response was not ok: ${response.statusText}`); }
+                 return response.json();
+            })
             .then(data => {
                 loadingMessage.style.display = 'none';
-                // ESTA PARTE É NOVA: Ela vai mostrar o erro exato que o script retornar
                 if (data.error) {
                     showMessage('error', `O Script retornou um erro: <br><br><strong>${data.error}</strong>`);
                     return;
                 }
-                // Se não houver erro, cria os botões
                 data.forEach(name => {
                     const button = document.createElement('button');
                     button.textContent = name;
@@ -86,7 +87,7 @@
             })
             .catch(error => {
                 loadingMessage.style.display = 'none';
-                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO. Verifique estes 3 pontos: <br>1. A SCRIPT_URL está correta no index.html? <br>2. A permissão do script no Google está como "Qualquer pessoa"? <br>3. Você está testando com o link do GitHub Pages (e não o link do repositório)?<br><br>Erro técnico: ${error}`);
+                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO. A causa mais provável é a configuração da Implantação no Google Script.<br><br><strong>Ação:</strong><br>1. No Google Script, vá em "Implantar" > "Gerenciar implantações".<br>2. Edite sua implantação (lápis).<br>3. Garanta que "Executar como" esteja como **"Eu"** e que "Quem pode acessar" esteja como **"Qualquer pessoa"**.<br>4. Crie uma "Nova versão" e Implante.<br><br>Erro técnico: ${error}`);
             });
         };
         
@@ -102,35 +103,4 @@
         function cancelSelection() { location.reload(); }
 
         function submitForm() {
-            const submitBtn = document.getElementById('submit-btn');
-            if (!document.getElementById('quantidade').value || !document.getElementById('nome-colaborador').value) {
-                alert('Por favor, preencha a quantidade e seu nome.');
-                return;
-            }
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando...';
-            
-            const form = new FormData();
-            form.append('nome_produto', document.getElementById('nome-produto').value); 
-            form.append('tipo', document.getElementById('tipo').value);
-            form.append('quantidade', document.getElementById('quantidade').value);
-            form.append('nome_colaborador', document.getElementById('nome-colaborador').value);
-
-            fetch(SCRIPT_URL, { method: 'POST', body: form })
-            .then(response => response.text())
-            .then(data => {
-                formContainer.style.display = 'none';
-                if (data.includes("sucesso")){
-                    showMessage('success', 'Registrado com sucesso!');
-                } else {
-                    showMessage('error', `Erro retornado pelo Servidor: ${data}`);
-                }
-                setTimeout(() => location.reload(), 2500);
-            }).catch(error => {
-                showMessage('error', `Erro de rede ao enviar o formulário. Tente novamente.<br>Erro técnico: ${error}`);
-                setTimeout(() => location.reload(), 3000);
-            });
-        }
-    </script>
-</body>
-</html>
+            const submitBtn = document.getElementById(
