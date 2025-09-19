@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Controle de Almoxarifado - Teste Final</title>
+    <title>Controle de Almoxarifado - Versão Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; background: linear-gradient(135deg, #0d47a1, #1e88e5, #42a5f5); background-attachment: fixed; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; background: linear-gradient(135deg, #0d4a7a, #1e70b3, #4295d4); background-attachment: fixed; }
         h1 { color: white; text-align: center; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); }
-        h2 { color: #005A8D; }
+        h2 { color: #004a74; }
         #app-container { background-color: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid #ddd; }
         #product-list { display: flex; flex-direction: column; gap: 10px; }
         .product-btn { background-color: #005A8D; color: white; font-size: 18px; font-weight: bold; padding: 18px; border-radius: 8px; border: none; cursor: pointer; transition: background-color 0.2s ease-in-out; width: 100%; text-align: left; }
@@ -43,10 +43,10 @@
         </div>
     </div>
     <script>
-        // ############ SUA URL MESTRE v6.0 ESTÁ AQUI! ############
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0zkcy6qBsTMbr3MGAyyk1s8yCl11uvZ6iHkRsWjk8Igp8uP3KqquQ4XegJOJDe0/exec";
+        // ############ SUA CHAVE MESTRA E FINAL ESTÁ AQUI ############
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFLRS5nA2R42_n8afxErJnYUdCtTbJ67X9kBROYTNwvKJbgj3BLUlqVxLE4oeybOU/exec";
         
-        // --- CÓDIGO FINAL E OTIMIZADO ---
+        // --- CÓDIGO FINAL ---
         const productListDiv = document.getElementById('product-list');
         const formContainer = document.getElementById('form-container');
         const loadingMessage = document.getElementById('loading-message');
@@ -86,7 +86,7 @@
             })
             .catch(error => {
                 loadingMessage.style.display = 'none';
-                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO. A causa mais provável é a configuração da Implantação no Google Script.<br><br><strong>Ação:</strong><br>1. No Google Script, vá em "Implantar" > "Gerenciar implantações".<br>2. Edite sua implantação (lápis).<br>3. Garanta que "Executar como" esteja como **"Eu"** e que "Quem pode acessar" esteja como **"Qualquer pessoa"**.<br>4. Crie uma "Nova versão" e Implante.<br><br>Erro técnico: ${error}`);
+                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO. A causa mais provável é a configuração da Implantação no Google Script.<br><br><strong>Ação:</strong><br>1. No Google Script, vá em "Implantar" > "Nova implantação".<br>2. Garanta que "Executar como" esteja como **"Eu"** e que "Quem pode acessar" esteja como **"Qualquer pessoa"**.<br><br>Erro técnico: ${error}`);
             });
         };
         
@@ -114,7 +114,7 @@
             form.append('nome_produto', document.getElementById('nome-produto').value); 
             form.append('tipo', document.getElementById('tipo').value);
             form.append('quantidade', document.getElementById('quantidade').value);
-            form.append('nome_colaborador', document.getElementById('nome_colaborador').value);
+            form.append('nome_colaborador', document.getElementById('nome-colaborador').value);
 
             fetch(SCRIPT_URL, { method: 'POST', body: form })
             .then(response => response.json())
@@ -134,8 +134,3 @@
     </script>
 </body>
 </html>
-        
-        function cancelSelection() { location.reload(); }
-
-        function submitForm() {
-            const submitBtn = document.getElementById(
