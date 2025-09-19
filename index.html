@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Controle de Almoxarifado - Teste v4</title>
+    <title>Controle de Almoxarifado - Teste Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <style>
@@ -43,10 +43,10 @@
         </div>
     </div>
     <script>
-        // ############ SUA URL DIPLOMÁTICA v4.0 ESTÁ AQUI! ############
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxOboIbz1mgXuSsb1RJq8C4KMUr94aL3DiN5Ugbkm5nsASk_0QCDJQjpyzvYaqCoM/exec";
+        // ############ SUA URL MESTRE v6.0 ESTÁ AQUI! ############
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0zkcy6qBsTMbr3MGAyyk1s8yCl11uvZ6iHkRsWjk8Igp8uP3KqquQ4XegJOJDe0/exec";
         
-        // --- O CÓDIGO ABAIXO ESTÁ OTIMIZADO PARA DEPURAR ---
+        // --- CÓDIGO FINAL E OTIMIZADO ---
         const productListDiv = document.getElementById('product-list');
         const formContainer = document.getElementById('form-container');
         const loadingMessage = document.getElementById('loading-message');
@@ -60,21 +60,20 @@
         }
 
         window.onload = function() {
-            if (!SCRIPT_URL.startsWith("https://script.google.com")) {
-                showMessage('error', 'ERRO DE CONFIGURAÇÃO: A SCRIPT_URL parece inválida. Edite o arquivo index.html e cole a URL correta do seu script.');
-                loadingMessage.style.display = 'none';
-                return;
-            }
             loadingMessage.style.display = 'block';
             fetch(`${SCRIPT_URL}?action=getProducts`)
             .then(response => {
-                 if (!response.ok) { throw new Error(`Network response was not ok: ${response.statusText}`); }
+                 if (!response.ok) { throw new Error(`A resposta da rede não foi 'ok': ${response.statusText}`); }
                  return response.json();
             })
             .then(data => {
                 loadingMessage.style.display = 'none';
                 if (data.error) {
-                    showMessage('error', `O Script retornou um erro: <br><br><strong>${data.error}</strong>`);
+                    showMessage('error', `O Script retornou um erro: <br><br><strong>${data.error}</strong><br><br>Verifique as configurações no código do script (ID da planilha e Nome da Aba).`);
+                    return;
+                }
+                if (data.length === 0) {
+                    showMessage('error', `Nenhum produto foi encontrado. Verifique se a aba "Eletromecânica" existe na planilha mestre e se os produtos estão na Coluna B a partir da linha 3.`);
                     return;
                 }
                 data.forEach(name => {
@@ -99,6 +98,42 @@
             document.getElementById('nome-produto').value = productName;
             formContainer.style.display = 'block';
         }
+        
+        function cancelSelection() { location.reload(); }
+
+        function submitForm() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (!document.getElementById('quantidade').value || !document.getElementById('nome-colaborador').value) {
+                alert('Por favor, preencha a quantidade e seu nome.');
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            
+            const form = new FormData();
+            form.append('nome_produto', document.getElementById('nome-produto').value); 
+            form.append('tipo', document.getElementById('tipo').value);
+            form.append('quantidade', document.getElementById('quantidade').value);
+            form.append('nome_colaborador', document.getElementById('nome_colaborador').value);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: form })
+            .then(response => response.json())
+            .then(data => {
+                formContainer.style.display = 'none';
+                if (data.status === "sucesso"){
+                    showMessage('success', data.message || 'Registrado com sucesso!');
+                } else {
+                    showMessage('error', `Erro retornado pelo Servidor: ${data.message || 'Erro desconhecido.'}`);
+                }
+                setTimeout(() => location.reload(), 2500);
+            }).catch(error => {
+                showMessage('error', `Erro de rede ao enviar o formulário. Tente novamente.<br>Erro técnico: ${error}`);
+                setTimeout(() => location.reload(), 3000);
+            });
+        }
+    </script>
+</body>
+</html>
         
         function cancelSelection() { location.reload(); }
 
