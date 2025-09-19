@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle de Almoxarifado - Teste</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- INÍCIO DA PALETA DE CORES E DESIGN VISUAL -->
+    <style>
+        /* Estilo geral do corpo da página */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            max-width: 500px; 
+            margin: auto; 
+            padding: 20px;
+            /* Cor de fundo em gradiente azul */
+            background: linear-gradient(135deg, #0d47a1, #1e88e5, #42a5f5);
+            background-attachment: fixed;
+        }
+        /* Estilo do Título Principal */
+        h1 { 
+            color: white; 
+            text-align: center; 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); 
+        }
+        h2 { color: #005A8D; }
+        /* O "cartão" branco principal */
+        #app-container { 
+            background-color: rgba(255, 255, 255, 0.95); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            border: 1px solid #ddd; 
+        }
+        /* Estilo da lista de botões dos produtos */
+        #product-list { display: flex; flex-direction: column; gap: 10px; }
+        /* Cor e formato dos botões de produto */
+        .product-btn { 
+            background-color: #005A8D; /* Azul Corporativo */
+            color: white; 
+            font-size: 18px; 
+            font-weight: bold; 
+            padding: 18px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            transition: background-color 0.2s ease-in-out; 
+            width: 100%; 
+            text-align: left; 
+        }
+        .product-btn:hover { background-color: #004a74; }
+        #form-container, #loading-message, #final-message { display: none; text-align: center; margin-top: 20px; }
+        input, select { width: 100%; padding: 12px; margin-top: 10px; box-sizing: border-box; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 14px; margin-top: 10px; box-sizing: border-box; font-size: 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        /* Cores dos botões do formulário */
+        #submit-btn { background-color: #005A8D; color: white; }
+        #cancel-btn { background-color: #6c757d; color: white; }
+        /* Cores das mensagens de sucesso e erro */
+        #message-box { padding: 15px; margin-top: 10px; border-radius: 5px; font-weight: bold; word-wrap: break-word; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+    <!-- FIM DA PALETA DE CORES E DESIGN VISUAL -->
+
+</head>
+<body>
+    <h1>Controle de Almoxarifado (Teste)</h1>
+    <div id="app-container">
+        <h2 id="selection-title">Selecione o Produto:</h2>
+        <div id="loading-message"><h2>Buscando produtos...</h2></div>
+        <div id="product-list"></div>
+        <div id="final-message"></div>
+        <div id="form-container">
+            <h2 id="product-name" style="font-style: italic;"></h2>
+            <input type="hidden" id="nome-produto" name="nome_produto">
+            <select id="tipo" name="tipo">
+                <option value="Saída do Estoque">Saída do Estoque</option>
+                <option value="Entrada no Estoque">Entrada no Estoque</option>
+            </select>
+            <input type="number" id="quantidade" name="quantidade" placeholder="Quantidade" required>
+            <input type="text" id="nome-colaborador" name="nome_colaborador" placeholder="Seu Nome" required>
+            <button id="submit-btn" onclick="submitForm()">Registrar Movimentação</button>
+            <button id="cancel-btn" onclick="cancelSelection()">Cancelar</button>
+        </div>
+    </div>
+    <script>
+        // ############ SUA URL DE TESTE FOI INSERIDA AQUI! ############
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycwbrRRwqra9gZr0qEUrdWEzkj5ZpzWTcxp-6S1uaCmv3rQqw6ZB78Hww99KnvdBajbo/exec";
+        
+        // O resto do código já está pronto...
+        const productListDiv = document.getElementById('product-list');
+        const formContainer = document.getElementById('form-container');
+        const loadingMessage = document.getElementById('loading-message');
+        const finalMessage = document.getElementById('final-message');
+        const selectionTitle = document.getElementById('selection-title');
+        const productNameH2 = document.getElementById('product-name');
+
+        function showMessage(type, text) { finalMessage.innerHTML = `<div id="message-box" class="${type}">${text}</div>`; finalMessage.style.display = 'block'; }
+        window.onload = function() {
+            if (SCRIPT_URL === "COLE_AQUELA_URL_QUE_VOCÊ_GUARDOU_AQUI") {
+                showMessage('error', 'ERRO DE CONFIGURAÇÃO: A URL do script ainda não foi inserida no arquivo index.html.');
+                loadingMessage.style.display = 'none';
+                return;
+            }
+            loadingMessage.style.display = 'block';
+            fetch(`${SCRIPT_URL}?action=getProducts`).then(response => response.json()).then(data => {
+                loadingMessage.style.display = 'none';
+                if(data.error) { showMessage('error', data.error); return; }
+                data.forEach(name => { const button = document.createElement('button'); button.textContent = name; button.className = 'product-btn'; button.onclick = () => selectProduct(name); productListDiv.appendChild(button); });
+            }).catch(error => { loadingMessage.style.display = 'none'; showMessage('error', 'Falha de comunicação. Verifique a URL do Script, a permissão do script (Qualquer pessoa) e se o repositório é público.'); });
+        };
+        function selectProduct(productName) { productListDiv.style.display = 'none'; selectionTitle.style.display = 'none'; productNameH2.textContent = productName; document.getElementById('nome-produto').value = productName; formContainer.style.display = 'block'; }
+        function cancelSelection() { location.reload(); }
+        function submitForm() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (!document.getElementById('quantidade').value || !document.getElementById('nome-colaborador').value) { alert('Por favor, preencha a quantidade e seu nome.'); return; }
+            submitBtn.disabled = true; submitBtn.textContent = 'Enviando...';
+            const form = new FormData();
+            form.append('nome_produto', document.getElementById('nome-produto').value); form.append('tipo', document.getElementById('tipo').value); form.append('quantidade', document.getElementById('quantidade').value); form.append('nome_colaborador', document.getElementById('nome-colaborador').value);
+            fetch(SCRIPT_URL, { method: 'POST', body: form }).then(response => response.text()).then(data => {
+                formContainer.style.display = 'none';
+                if (data.includes("sucesso")){ showMessage('success', 'Registrado com sucesso!'); } else { showMessage('error', `Erro do Servidor: ${data}`); }
+                setTimeout(() => location.reload(), 2500);
+            }).catch(error => { showMessage('error', 'Erro de rede. Tente novamente.'); setTimeout(() => location.reload(), 3000); });
+        }
+    </script>
+</body>
+</html>
