@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Controle de Almoxarifado - Versão Final</title>
+    <title>Controle de Almoxarifado - Versão Teste</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <style>
@@ -32,21 +32,27 @@
         <div id="form-container">
             <h2 id="product-name" style="font-style: italic;"></h2>
             <input type="hidden" id="nome-produto" name="nome_produto">
+            
             <select id="tipo" name="tipo">
                 <option value="Saída do Estoque">Saída do Estoque</option>
                 <option value="Entrada no Estoque">Entrada no Estoque</option>
             </select>
+            
             <input type="number" id="quantidade" name="quantidade" placeholder="Quantidade" required>
             <input type="text" id="nome-colaborador" name="nome_colaborador" placeholder="Seu Nome" required>
+            
+            <!-- Novos campos -->
+            <input type="text" id="destinatario" name="destinatario" placeholder="Destinatário do Item">
+            <input type="text" id="local" name="local" placeholder="Local de Uso">
+            
             <button id="submit-btn" onclick="submitForm()">Registrar Movimentação</button>
             <button id="cancel-btn" onclick="cancelSelection()">Cancelar</button>
         </div>
     </div>
     <script>
-        // ############ SUA CHAVE MESTRA E FINAL ESTÁ AQUI ############
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFLRS5nA2R42_n8afxErJnYUdCtTbJ67X9kBROYTNwvKJbgj3BLUlqVxLE4oeybOU/exec";
+        // 🔑 Nova URL de teste
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqyHvHiOmBUkuW-3g4Y4l2G38sjxopkWIR8UnfupALbVI2yRDifTpDrBMwD0sxi3Pi9w/exec";
         
-        // --- CÓDIGO FINAL ---
         const productListDiv = document.getElementById('product-list');
         const formContainer = document.getElementById('form-container');
         const loadingMessage = document.getElementById('loading-message');
@@ -69,11 +75,11 @@
             .then(data => {
                 loadingMessage.style.display = 'none';
                 if (data.error) {
-                    showMessage('error', `O Script retornou um erro: <br><br><strong>${data.error}</strong><br><br>Verifique as configurações no código do script (ID da planilha e Nome da Aba).`);
+                    showMessage('error', `O Script retornou um erro: <br><br><strong>${data.error}</strong>`);
                     return;
                 }
                 if (data.length === 0) {
-                    showMessage('error', `Nenhum produto foi encontrado. Verifique se a aba "Eletromecânica" existe na planilha mestre e se os produtos estão na Coluna B a partir da linha 3.`);
+                    showMessage('error', `Nenhum produto encontrado na planilha de teste.`);
                     return;
                 }
                 data.forEach(name => {
@@ -86,7 +92,7 @@
             })
             .catch(error => {
                 loadingMessage.style.display = 'none';
-                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO. A causa mais provável é a configuração da Implantação no Google Script.<br><br><strong>Ação:</strong><br>1. No Google Script, vá em "Implantar" > "Nova implantação".<br>2. Garanta que "Executar como" esteja como **"Eu"** e que "Quem pode acessar" esteja como **"Qualquer pessoa"**.<br><br>Erro técnico: ${error}`);
+                showMessage('error', `FALHA CRÍTICA DE COMUNICAÇÃO.<br><br>Erro técnico: ${error}`);
             });
         };
         
@@ -115,6 +121,8 @@
             form.append('tipo', document.getElementById('tipo').value);
             form.append('quantidade', document.getElementById('quantidade').value);
             form.append('nome_colaborador', document.getElementById('nome-colaborador').value);
+            form.append('destinatario', document.getElementById('destinatario').value);
+            form.append('local', document.getElementById('local').value);
 
             fetch(SCRIPT_URL, { method: 'POST', body: form })
             .then(response => response.json())
@@ -123,11 +131,11 @@
                 if (data.status === "sucesso"){
                     showMessage('success', data.message || 'Registrado com sucesso!');
                 } else {
-                    showMessage('error', `Erro retornado pelo Servidor: ${data.message || 'Erro desconhecido.'}`);
+                    showMessage('error', `Erro retornado pelo servidor: ${data.message || 'Erro desconhecido.'}`);
                 }
                 setTimeout(() => location.reload(), 2500);
             }).catch(error => {
-                showMessage('error', `Erro de rede ao enviar o formulário. Tente novamente.<br>Erro técnico: ${error}`);
+                showMessage('error', `Erro de rede ao enviar o formulário.<br>Erro técnico: ${error}`);
                 setTimeout(() => location.reload(), 3000);
             });
         }
